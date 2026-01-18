@@ -42,6 +42,15 @@ Once downloaded, extract the archive and run `./pocketbase serve` in the extract
 
 The prebuilt executables are based on the [`examples/base/main.go` file](https://github.com/pocketbase/pocketbase/blob/master/examples/base/main.go) and comes with the JS VM plugin enabled by default which allows to extend PocketBase with JavaScript (_for more details please refer to [Extend with JavaScript](https://pocketbase.io/docs/js-overview/)_).
 
+### Use with Docker
+
+You can also run PocketBase using Docker, perfect for NAS deployments and Portainer stacks. See [README-DOCKER.md](README-DOCKER.md) for detailed Docker deployment instructions including:
+
+- Docker Compose configuration
+- Portainer Stack setup for NAS systems
+- Volume mount configuration for persistent storage
+- Environment variable customization
+
 ### Use as a Go framework/toolkit
 
 PocketBase is distributed as a regular Go library package which allows you to build
