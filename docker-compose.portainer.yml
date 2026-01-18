@@ -6,9 +6,9 @@ version: '3.8'
 
 services:
   pocketbase:
-    # Use pre-built image or build from source
-    # For production, replace with your registry: image: your-registry/pocketbase:latest
-    image: pocketbase:latest
+    # Build from source
+    # For production with pre-built image, replace 'build: .' with:
+    # image: your-registry/pocketbase:latest
     build: .
     container_name: pocketbase
     restart: unless-stopped

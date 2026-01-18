@@ -26,7 +26,6 @@ coverage.out
 # Documentation
 *.md
 *.html
-!README.md
 
 # OS files
 .DS_Store
