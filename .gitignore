@@ -18,3 +18,10 @@ CHANGELOG.html
 CHANGELOG_16_22.html
 CHANGELOG_8_15.html
 LICENSE.html
+
+# Docker environment and data
+.env
+pb_data/
+pb_public/
+pb_hooks/
+pb_migrations/

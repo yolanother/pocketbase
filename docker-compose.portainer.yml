@@ -1,0 +1,86 @@
+version: '3.8'
+
+# Portainer Stack Configuration for PocketBase
+# This file is optimized for deployment via Portainer Stacks
+# Perfect for NAS deployments with persistent storage
+
+services:
+  pocketbase:
+    # Use pre-built image or build from source
+    # For production, replace with your registry: image: your-registry/pocketbase:latest
+    image: pocketbase:latest
+    build: .
+    container_name: pocketbase
+    restart: unless-stopped
+    
+    ports:
+      # Change the left port number (8090) to expose PocketBase on a different host port
+      # Example: "8080:8090" to expose on port 8080
+      - "${PB_PORT:-8090}:8090"
+    
+    volumes:
+      # IMPORTANT: Change these paths for NAS deployment
+      # Example: /volume1/docker/pocketbase/data:/pb/pb_data
+      
+      # Main data directory - Contains database and uploaded files
+      # This MUST be persistent storage on your NAS
+      - ${PB_DATA_PATH:-./pb_data}:/pb/pb_data
+      
+      # Optional: Public files directory
+      - ${PB_PUBLIC_PATH:-./pb_public}:/pb/pb_public
+      
+      # Optional: Custom JavaScript hooks directory
+      - ${PB_HOOKS_PATH:-./pb_hooks}:/pb/pb_hooks
+      
+      # Optional: Custom migrations directory
+      - ${PB_MIGRATIONS_PATH:-./pb_migrations}:/pb/pb_migrations
+    
+    environment:
+      # Server Configuration
+      # Default listen address (0.0.0.0 allows external connections)
+      - PB_HTTP_ADDR=${PB_HTTP_ADDR:-0.0.0.0:8090}
+      
+      # Directory Configuration (matches volumes above)
+      - PB_DATA_DIR=/pb/pb_data
+      - PB_HOOKS_DIR=/pb/pb_hooks
+      - PB_MIGRATIONS_DIR=/pb/pb_migrations
+      - PB_PUBLIC_DIR=/pb/pb_public
+      
+      # Optional: Encryption key for sensitive fields
+      # IMPORTANT: Set this in Portainer environment variables for security
+      - PB_ENCRYPTION_ENV=${PB_ENCRYPTION_ENV:-}
+      
+      # Optional: Timezone configuration
+      - TZ=${TZ:-UTC}
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8090/api/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    
+    # Resource limits (adjust based on your NAS resources)
+    # Uncomment and modify as needed
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1.0'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 128M
+
+# Notes for Portainer Deployment:
+# 1. In Portainer, go to Stacks > Add Stack
+# 2. Name your stack (e.g., "pocketbase")
+# 3. Paste this file content or use Git repository
+# 4. Set environment variables in the "Environment variables" section:
+#    - PB_PORT=8090 (or your preferred port)
+#    - PB_DATA_PATH=/your/nas/path/pocketbase/data
+#    - PB_PUBLIC_PATH=/your/nas/path/pocketbase/public
+#    - PB_HOOKS_PATH=/your/nas/path/pocketbase/hooks
+#    - PB_MIGRATIONS_PATH=/your/nas/path/pocketbase/migrations
+#    - PB_ENCRYPTION_ENV=your_encryption_key (optional but recommended)
+#    - TZ=Your/Timezone (e.g., America/New_York)
+# 5. Deploy the stack
