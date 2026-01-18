@@ -1,0 +1,48 @@
+# Git files
+.git
+.gitignore
+.github
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Build artifacts
+.builds
+*.exe
+*.dll
+*.so
+*.dylib
+pocketbase
+
+# Test files
+*.test
+*.out
+coverage.out
+
+# Documentation
+*.md
+*.html
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local data directories
+pb_data
+pb_public
+pb_hooks
+pb_migrations
+
+# Temporary files
+*.tmp
+*.log
+*.todo
+
+# Docker files (not needed in the image)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
