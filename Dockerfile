@@ -66,4 +66,4 @@ VOLUME ["/pb/pb_data", "/pb/pb_public", "/pb/pb_hooks", "/pb/pb_migrations"]
 
 # Run PocketBase serve command with configurable options
 ENTRYPOINT ["/usr/local/bin/pocketbase"]
-CMD ["serve", "--http=0.0.0.0:8090"]
+CMD ["serve", "--http=0.0.0.0:8090", "--dir=/pb/pb_data"]

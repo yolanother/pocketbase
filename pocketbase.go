@@ -304,8 +304,43 @@ func inspectRuntime() (baseDir string, withGoRun bool) {
 		// probably ran with go build
 		withGoRun = false
 		baseDir = filepath.Dir(os.Args[0])
+		// If the executable is in a system directory (e.g., /usr/local/bin),
+		// use the current working directory instead to avoid permission issues
+		if isSystemDir(baseDir) {
+			if cwd, err := os.Getwd(); err == nil {
+				baseDir = cwd
+			}
+			// if os.Getwd() fails, keep using baseDir (even though it's a system dir)
+			// as the app will likely fail later when trying to create the data dir,
+			// but at least the user can override it with the --dir flag
+		}
 	}
 	return
+}
+
+// Common system binary directories across Unix-like systems where
+// users typically don't have write permissions
+var systemBinaryDirs = []string{
+	"/bin",
+	"/sbin",
+	"/usr/bin",
+	"/usr/sbin",
+	"/usr/local/bin",
+	"/usr/local/sbin",
+	"/opt/bin",
+	"/snap/bin",
+}
+
+// isSystemDir checks if a directory is a system directory where
+// regular users typically don't have write permissions
+func isSystemDir(dir string) bool {
+	cleanDir := filepath.Clean(dir)
+	for _, sysDir := range systemBinaryDirs {
+		if cleanDir == sysDir {
+			return true
+		}
+	}
+	return false
 }
 
 // newErrWriter returns a red colored stderr writter.

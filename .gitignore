@@ -25,3 +25,7 @@ pb_data/
 pb_public/
 pb_hooks/
 pb_migrations/
+
+# Local Docker testing
+docker-compose.local.yml
+data/

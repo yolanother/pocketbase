@@ -5,6 +5,7 @@ This guide covers deploying PocketBase using Docker and Docker Compose, with spe
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Local Testing Setup](#local-testing-setup)
 - [Docker Deployment](#docker-deployment)
 - [Portainer Stack Deployment](#portainer-stack-deployment)
 - [Configuration](#configuration)
@@ -25,6 +26,97 @@ docker-compose up -d
 ```
 
 3. Access PocketBase at `http://localhost:8090/_/`
+
+## Local Testing Setup
+
+For local development and testing of the Docker setup, use the interactive setup script:
+
+### Quick Setup (Recommended)
+
+```bash
+./setup-docker.sh
+```
+
+This interactive script will:
+- ✓ Check Docker installation and daemon status
+- ✓ Create local data directories (default: `./data/`)
+- ✓ Generate `docker-compose.local.yml` with proper volume mounts
+- ✓ Update `.gitignore` to exclude testing files
+- ✓ Build the Docker image
+- ✓ Start the containers
+
+The script creates a `.gitignored` `data/` directory for local testing, so you can test the permission fix and other features without polluting your repository.
+
+### Manual Setup
+
+If you prefer to set up manually:
+
+1. **Create local data directories:**
+   ```bash
+   mkdir -p data/{pb_data,pb_public,pb_hooks,pb_migrations}
+   ```
+
+2. **Create `docker-compose.local.yml`:**
+   ```yaml
+   version: '3.8'
+   
+   services:
+     pocketbase:
+       build: .
+       container_name: pocketbase-local
+       ports:
+         - "8090:8090"
+       volumes:
+         - ./data/pb_data:/pb/pb_data
+         - ./data/pb_public:/pb/pb_public
+         - ./data/pb_hooks:/pb/pb_hooks
+         - ./data/pb_migrations:/pb/pb_migrations
+   ```
+
+3. **Build and run:**
+   ```bash
+   docker-compose -f docker-compose.local.yml up -d
+   ```
+
+### Testing the Permission Fix
+
+The local setup is ideal for testing the permission denied fix:
+
+1. The container runs with the executable in `/usr/local/bin/pocketbase`
+2. The `--dir=/pb/pb_data` flag ensures data is stored in the correct location
+3. Watch the logs to verify no permission errors:
+   ```bash
+   docker-compose -f docker-compose.local.yml logs -f
+   ```
+4. Verify data is being created in `./data/pb_data/`
+
+### Useful Commands
+
+```bash
+# Start containers
+docker-compose -f docker-compose.local.yml up -d
+
+# View logs
+docker-compose -f docker-compose.local.yml logs -f
+
+# Stop containers
+docker-compose -f docker-compose.local.yml down
+
+# Rebuild and restart
+docker-compose -f docker-compose.local.yml up -d --build
+
+# Clean up everything (including data)
+docker-compose -f docker-compose.local.yml down -v
+rm -rf data/
+```
+
+### Why Local Testing?
+
+- **Isolated Environment**: Test changes without affecting production data
+- **Easy Cleanup**: Simply delete the `data/` directory
+- **Version Control**: `data/` and `docker-compose.local.yml` are git-ignored
+- **Permission Testing**: Validate the fix for system directory installations
+- **Development**: Quickly iterate on Docker configuration changes
 
 ### Using Docker Run
 
