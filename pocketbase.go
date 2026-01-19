@@ -304,11 +304,15 @@ func inspectRuntime() (baseDir string, withGoRun bool) {
 		// probably ran with go build
 		withGoRun = false
 		baseDir = filepath.Dir(os.Args[0])
-		
 		// If the executable is in a system directory (e.g., /usr/local/bin),
 		// use the current working directory instead to avoid permission issues
 		if isSystemDir(baseDir) {
-			baseDir, _ = os.Getwd()
+			if cwd, err := os.Getwd(); err == nil {
+				baseDir = cwd
+			}
+			// if os.Getwd() fails, keep using baseDir (even though it's a system dir)
+			// as the app will likely fail later when trying to create the data dir,
+			// but at least the user can override it with the --dir flag
 		}
 	}
 	return

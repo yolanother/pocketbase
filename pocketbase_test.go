@@ -247,7 +247,10 @@ func TestInspectRuntimeWithSystemDir(t *testing.T) {
 	}()
 
 	// Get current working directory to compare
-	cwd, _ := os.Getwd()
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Failed to get current working directory: %v", err)
+	}
 
 	// Test with a system directory path
 	os.Args = []string{"/usr/local/bin/pocketbase"}
