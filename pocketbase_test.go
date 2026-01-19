@@ -208,3 +208,70 @@ func TestSkipBootstrap(t *testing.T) {
 		}
 	}
 }
+
+func TestIsSystemDir(t *testing.T) {
+	scenarios := []struct {
+		dir      string
+		expected bool
+	}{
+		{"/usr/local/bin", true},
+		{"/usr/bin", true},
+		{"/bin", true},
+		{"/sbin", true},
+		{"/usr/sbin", true},
+		{"/usr/local/sbin", true},
+		{"/opt/bin", true},
+		{"/snap/bin", true},
+		{"/home/user/app", false},
+		{"/opt/pocketbase", false},
+		{"./bin", false},
+		{"bin", false},
+		{"/usr/local/bin/", true}, // with trailing slash
+	}
+
+	for _, s := range scenarios {
+		result := isSystemDir(s.dir)
+		if result != s.expected {
+			t.Fatalf("isSystemDir(%q) expected %v, got %v", s.dir, s.expected, result)
+		}
+	}
+}
+
+func TestInspectRuntimeWithSystemDir(t *testing.T) {
+	// copy os.Args
+	originalArgs := make([]string, len(os.Args))
+	copy(originalArgs, os.Args)
+	defer func() {
+		// restore os.Args
+		os.Args = originalArgs
+	}()
+
+	// Get current working directory to compare
+	cwd, _ := os.Getwd()
+
+	// Test with a system directory path
+	os.Args = []string{"/usr/local/bin/pocketbase"}
+	baseDir, withGoRun := inspectRuntime()
+
+	if withGoRun {
+		t.Fatal("Expected withGoRun to be false for system dir path")
+	}
+
+	// Should return current working directory, not /usr/local/bin
+	if baseDir != cwd {
+		t.Fatalf("Expected baseDir to be current working directory %q, got %q", cwd, baseDir)
+	}
+
+	// Test with a non-system directory path
+	os.Args = []string{"/home/user/app/pocketbase"}
+	baseDir, withGoRun = inspectRuntime()
+
+	if withGoRun {
+		t.Fatal("Expected withGoRun to be false for non-system dir path")
+	}
+
+	expected := "/home/user/app"
+	if baseDir != expected {
+		t.Fatalf("Expected baseDir to be %q, got %q", expected, baseDir)
+	}
+}
